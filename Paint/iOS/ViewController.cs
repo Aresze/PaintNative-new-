@@ -21,7 +21,7 @@ namespace Paint.iOS
             _drawModel = new DrawModel();
             _paintView.Delegate = this;
             
-            _drawKeeper = new DrawKeeperFactory().Create(EDrawKeeperType.Internal);
+           
             
             _btnClear.TouchUpInside += BtnClearTouchUpInside;
             _btnBack.TouchUpInside += BtnBackTouchUpInside;
@@ -39,13 +39,71 @@ namespace Paint.iOS
 
         private void BtnLoadOnTouchUpInside(object sender, EventArgs e)
         {
-            _drawModel = _drawKeeper.Load();
-            _paintView.UpdateView(_drawModel.Paths);
+            var alert = UIAlertController.Create("Load", "Select load paint", UIAlertControllerStyle.Alert);
+            if (alert.PopoverPresentationController != null)
+                alert.PopoverPresentationController.BarButtonItem = sender as UIBarButtonItem;
+
+            alert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
+
+            alert.AddAction(UIAlertAction.Create("Load for File", UIAlertActionStyle.Default, action => {
+                _drawKeeper = new DrawKeeperFactory().Create(EDrawKeeperType.File);
+                LoadFile();
+            }));
+            alert.AddAction(UIAlertAction.Create("Load for Realm", UIAlertActionStyle.Default, action => {
+                _drawKeeper = new DrawKeeperFactory().Create(EDrawKeeperType.Realm);
+                LoadFile();
+            }));
+            alert.AddAction(UIAlertAction.Create("Load for SQLite", UIAlertActionStyle.Default, action => {
+                _drawKeeper = new DrawKeeperFactory().Create(EDrawKeeperType.SQLite);
+                LoadFile();
+            }));
+            alert.AddAction(UIAlertAction.Create("Load for NSUserDefoult", UIAlertActionStyle.Default, action => {
+                _drawKeeper = new DrawKeeperFactory().Create(EDrawKeeperType.Internal);
+                LoadFile();
+            }));
+            PresentViewController(alert, animated: true, completionHandler: null);
         }
 
         private void BtnSaveOnTouchUpInside(object sender, EventArgs e)
         {
-            _drawKeeper.Save(_drawModel);
+            var alert = UIAlertController.Create("Save", "Select save paint", UIAlertControllerStyle.Alert);
+            if (alert.PopoverPresentationController != null)
+                alert.PopoverPresentationController.BarButtonItem = sender as UIBarButtonItem;
+
+            alert.AddAction(UIAlertAction.Create("Cancel", UIAlertActionStyle.Cancel, null));
+
+            alert.AddAction(UIAlertAction.Create("Save to File", UIAlertActionStyle.Default, action => {
+                _drawKeeper = new DrawKeeperFactory().Create(EDrawKeeperType.File);
+                _drawKeeper.Save(_drawModel);
+            }));
+            alert.AddAction(UIAlertAction.Create("Save to Realm", UIAlertActionStyle.Default, action => {
+                _drawKeeper = new DrawKeeperFactory().Create(EDrawKeeperType.Realm);
+                _drawKeeper.Save(_drawModel);
+            }));
+            alert.AddAction(UIAlertAction.Create("Save to SQLite", UIAlertActionStyle.Default, action => {
+                _drawKeeper = new DrawKeeperFactory().Create(EDrawKeeperType.SQLite);
+                _drawKeeper.Save(_drawModel);
+            }));
+            alert.AddAction(UIAlertAction.Create("Save to NSUserDefoult", UIAlertActionStyle.Default, action => {
+                _drawKeeper = new DrawKeeperFactory().Create(EDrawKeeperType.Internal);
+                _drawKeeper.Save(_drawModel);
+            }));
+            PresentViewController(alert, animated: true, completionHandler: null);
+            
+        }
+
+        private void LoadFile()
+        {
+            try
+            {
+                _drawModel = _drawKeeper.Load();
+                _paintView.UpdateView(_drawModel.Paths);
+            }
+            catch (System.Exception ex)
+            {
+                _drawModel = new DrawModel();
+                _paintView.UpdateView(_drawModel.Paths);
+            }
         }
 
         private void BtnBackTouchUpInside(object sender, EventArgs e)

@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using Paint.Keeper;
 
-namespace Paint.iOS.Keeper
+namespace Paint.Droid.Keeper
 {
     public class DrawKeeperFactory : IDrawKeeperFactory
     {
+        
         public IDrawKeeper Create(EDrawKeeperType type)
         {
             switch (type)
@@ -12,15 +13,15 @@ namespace Paint.iOS.Keeper
                 case EDrawKeeperType.Internal:
                     return new InternalKeeper();
                 case EDrawKeeperType.File:
-                    return new FileKeeperIOS();
+                    return new FileKeeperDroid();
                 case EDrawKeeperType.SQLite:
                     {
                         var path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                        var dbPath = System.IO.Path.Combine(path, "ormbase.db3");
+                        var dbPath = System.IO.Path.Combine(path, "ormdemo.db3");
                         return new SQLiteKepper(dbPath);
                     }
                 case EDrawKeeperType.Realm:
-                    return new RealmKeeper();
+                    return new RealmKeeper(); 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
